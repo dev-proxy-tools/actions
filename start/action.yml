@@ -1,11 +1,11 @@
 name: Start Dev Proxy
 description: Start Dev Proxy
 inputs:
-  logFile:
+  log-file:
     description: The file to log Dev Proxy output to
     required: true
     default: devproxy.log
-  configFile:
+  config-file:
     description: The path to the Dev Proxy configuration file
     required: false
 runs:
@@ -14,7 +14,7 @@ runs:
     - name: Start Dev Proxy
       id: start
       run: |
-        log_file="${{ inputs.logFile }}"
+        log_file="${{ inputs.log-file }}"
 
         echo "Starting Dev Proxy..."
 
@@ -32,8 +32,8 @@ runs:
         # log Dev Proxy output to the log file
         # log stdout and stderr to the file
         config_arg=""
-        if [ -n "${{ inputs.configFile }}" ]; then
-          config_arg="-c ${{ inputs.configFile }}"
+        if [ -n "${{ inputs.config-file }}" ]; then
+          config_arg="-c ${{ inputs.config-file }}"
         fi
         
         ./devproxy/devproxy $config_arg > $log_file 2>&1 &
