@@ -15,7 +15,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Start Dev Proxy 
+    - name: Start Dev Proxy with post step
       id: stat-with-post-step
       uses: pyTooling/Actions/with-post-step@v5.1.0
       with:
@@ -31,6 +31,9 @@ runs:
           export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
           export XDG_DATA_HOME=~/.config
           export DEV_PROXY_CERT_PATH=rootCert/rootCert.pfx
+
+          # Create cert-path
+          cert_path="$XDG_DATA_HOME/dev-proxy/$DEV_PROXY_CERT_PATH"
 
           # start Dev Proxy in the background
           # log Dev Proxy output to the log file
@@ -52,15 +55,15 @@ runs:
             fi
             sleep 1
           done
-          
+
           echo "🔒 Trusting Dev Proxy certificate..."
 
-          echo "Checking for certificate at: $DEV_PROXY_CERT_PATH"
-          if [ -f "$DEV_PROXY_CERT_PATH" ]; then
+          echo "Checking for certificate at: $cert_path"
+          if [ -f "$cert_path" ]; then
             echo "✅ Certificate found"
             
             echo "Exporting the Dev Proxy's Root Certificate"
-            if openssl pkcs12 -in "$DEV_PROXY_CERT_PATH" -clcerts -nokeys -out dev-proxy-ca.crt -passin pass:""; then
+            if openssl pkcs12 -in "$cert_path" -clcerts -nokeys -out dev-proxy-ca.crt -passin pass:""; then
               echo "Installing the Dev Proxy's Root Certificate"
               sudo cp dev-proxy-ca.crt /usr/local/share/ca-certificates/
 
@@ -85,6 +88,5 @@ runs:
             echo "Stopping Dev Proxy..."
             curl -X POST http://127.0.0.1:8897/proxy/stopproxy
             echo "Dev Proxy has been stopped."
-          else
-            echo "Dev Proxy will continue running."
           fi
+        shell: bash
