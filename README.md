@@ -38,7 +38,8 @@ Start Dev Proxy with optional configuration file. Dev Proxy will run in the back
   uses: dev-proxy-tools/actions/start@v0
   with:
     log-file: devproxy.log           # optional, defaults to devproxy.log
-    config-file: ./devproxyrc.json     # optional, will use default configuration if not provided
+    config-file: ./devproxyrc.json   # optional, will use default configuration if not provided
+    auto-stop: true                  # optional, defaults to false
 ```
 
 **Inputs:**
@@ -46,7 +47,8 @@ Start Dev Proxy with optional configuration file. Dev Proxy will run in the back
 | Name | Description | Required | Default |
 |------|-------------|----------|---------|
 | `log-file` | The file to log Dev Proxy output to | Yes | `devproxy.log` |
-| `config-file` | The path to the Dev Proxy configuration file | No | - |
+| `config-file` | The path to the Dev Proxy configuration file | No | Uses default configuration |
+| `auto-stop` | Automatically stop Dev Proxy after the workflow completes | No | `true` |
 
 ### Stop
 

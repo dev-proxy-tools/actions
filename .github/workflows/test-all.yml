@@ -19,9 +19,7 @@ jobs:
 
       - name: Start Dev Proxy
         id: start-devproxy
-        uses: ./start
-        with:
-          logFile: ${{ env.LOG_FILE }}
+        uses: ./start          
 
       - name: Start recording
         id: start-recording
@@ -35,10 +33,6 @@ jobs:
       - name: Stop recording
         id: stop-recording
         uses: ./record-stop
-
-      - name: Stop Dev Proxy
-        id: stop-devproxy
-        uses: ./stop
 
       - name: Show logs
         run: |
