@@ -1,0 +1,15 @@
+{
+    "name": "nodejs-app",
+    "version": "1.0.0",
+    "description": "A simple Node.js app that fetches posts from JSON Placeholder API",
+    "main": "index.mjs",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "dependencies": {
+        "axios": "^1.6.0"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "MIT"
+}

@@ -1,0 +1,50 @@
+name: Test Dev Proxy Actions with node app
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-dev-proxy-actions-node:
+    name: Test Dev Proxy Actions with node app
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: tests/node-js/package-lock.json
+
+      - name: Install Node.js dependencies
+        run: |
+          cd tests/node-js
+          npm install
+
+      - name: Intall Dev Proxy
+        id: install-latest
+        uses: ./install
+
+      - name: Start Dev Proxy
+        id: start-devproxy
+        uses: ./start
+
+      - name: Start recording
+        id: start-recording
+        uses: ./record-start
+
+      - name: Run Node.js test application
+        run: |
+          cd tests/node-js
+          node index.mjs
+
+      - name: Stop recording
+        id: stop-recording
+        uses: ./record-stop
+
+      - name: Show logs
+        run: |
+          echo "Dev Proxy logs:"
+          cat devproxy.log
