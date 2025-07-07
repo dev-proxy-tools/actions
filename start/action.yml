@@ -89,4 +89,3 @@ runs:
             curl -X POST http://127.0.0.1:8897/proxy/stopproxy
             echo "Dev Proxy has been stopped."
           fi
-        shell: bash
