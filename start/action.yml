@@ -87,5 +87,7 @@ runs:
           if [ "${{ inputs.auto-stop }}" = "true" ]; then
             echo "Stopping Dev Proxy..."
             curl -X POST http://127.0.0.1:8897/proxy/stopproxy
+            echo "http_proxy=" >> $GITHUB_ENV
+            echo "https_proxy=" >> $GITHUB_ENV
             echo "Dev Proxy has been stopped."
           fi
