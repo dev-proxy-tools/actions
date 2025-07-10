@@ -43,7 +43,7 @@ Start Dev Proxy with optional configuration file. Dev Proxy will run in the back
   with:
     log-file: devproxy.log           # optional, defaults to devproxy.log
     config-file: ./devproxyrc.json   # optional, will use default configuration if not provided
-    auto-stop: true                  # optional, defaults to false
+    auto-stop: true                  # optional, defaults to true
 ```
 
 This action automatically:
