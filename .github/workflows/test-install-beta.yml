@@ -1,0 +1,51 @@
+name: Test Install Beta Version
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-install-beta:
+    name: Test Install Beta Version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Dev Proxy Beta
+        id: install-beta
+        uses: ./install
+        with:
+          version: v1.0.0-beta.2
+
+      - name: Verify Beta Installation
+        run: |
+          echo "🔍 Checking for beta installation..."
+          
+          # Check if devproxy-beta binary exists
+          if [ -f "./devproxy-beta/devproxy-beta" ]; then
+            echo "✅ Dev Proxy beta binary found"
+            ./devproxy-beta/devproxy-beta --version || echo "Version check failed but beta binary exists"
+          else
+            echo "❌ Dev Proxy beta binary not found"
+            echo "Available files in devproxy directory:"
+            ls -la ./devproxy/ || echo "devproxy directory not found"
+            exit 1
+          fi
+
+          # Check if DEVPROXY_BETA environment variable was set
+          if [ "$DEVPROXY_BETA" = "true" ]; then
+            echo "✅ DEVPROXY_BETA environment variable is set correctly"
+          else
+            echo "❌ DEVPROXY_BETA environment variable not set or incorrect value: $DEVPROXY_BETA"
+            exit 1
+          fi
+
+      - name: Start Dev Proxy Beta
+        id: start-devproxy-beta
+        uses: ./start
+
+      - name: Show logs
+        if: always()
+        run: |
+          echo "Dev Proxy logs:"
+          cat devproxy.log

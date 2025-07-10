@@ -16,7 +16,7 @@ runs:
   using: composite
   steps:
     - name: Start Dev Proxy with post step
-      id: stat-with-post-step
+      id: start-with-post-step
       uses: pyTooling/Actions/with-post-step@v5.1.0
       with:
         main: |
@@ -25,27 +25,34 @@ runs:
           echo "Starting Dev Proxy..."
 
           # Create directory for Dev Proxy configuration and certificates
-          mkdir -p ~/.config/dev-proxy/rootCert
+    
+          root_cert_dir="$HOME/.config/dev-proxy"
+          mkdir -p "$root_cert_dir"
+
+          # Set certificate path
+          cert_path="$root_cert_dir/rootCert.pfx"
+
+          echo "Using certificate path: $cert_path"
 
           # Set environment variables for Dev Proxy
           export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
-          export XDG_DATA_HOME=~/.config
-          export DEV_PROXY_CERT_PATH=rootCert/rootCert.pfx
-
-          # Create cert-path
-          cert_path="$XDG_DATA_HOME/dev-proxy/$DEV_PROXY_CERT_PATH"
-
-          # start Dev Proxy in the background
-          # log Dev Proxy output to the log file
-          # log stdout and stderr to the file
+                   
+          # Set config arguments if provided
           config_arg=""
           if [ -n "${{ inputs.config-file }}" ]; then
             config_arg="-c ${{ inputs.config-file }}"
           fi
 
-          ./devproxy/devproxy $config_arg > $log_file 2>&1 &
+          # Use appropriate executable based on whether beta version was installed
+          devproxy_exec="./devproxy/devproxy"
+          if [ "$DEVPROXY_BETA" = "true" ]; then
+            devproxy_exec="./devproxy-beta/devproxy-beta"
+          fi
 
-          proxy_pid=$!
+          # start Dev Proxy in the background
+          # log Dev Proxy output to the log file
+          # log stdout and stderr to the file
+          $devproxy_exec $config_arg > $log_file 2>&1 &
 
           # wait for init
           echo "Waiting for Dev Proxy to start..."

@@ -18,20 +18,20 @@ A collection of GitHub Actions for using [Dev Proxy](https://aka.ms/devproxy) in
 
 ### Install
 
-Install Dev Proxy in your workflow. You can specify a version or use the latest.
+Install Dev Proxy in your workflow. You can specify a version, or use the latest.
 
 ```yaml
 - name: Install Dev Proxy
   uses: dev-proxy-tools/actions/install@v1
   with:
-    version: v0.29.2
+    version: v0.29.2 # optional, defaults to latest
 ```
 
 **Inputs:**
 
 | Name | Description | Required | Default |
 |------|-------------|----------|---------|
-| `version` | Version of Dev Proxy to install (e.g., v0.29.2) | No | latest |
+| `version` | Version of Dev Proxy to install (e.g., v0.29.2, v1.0.0-beta.2) | No | latest |
 
 ### Start
 

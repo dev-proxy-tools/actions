@@ -12,10 +12,22 @@ runs:
       run: |
         echo "🔧 Installing Dev Proxy..."
 
+        # Check if version contains beta
+        is_beta=false
+        if [ -n "${{ inputs.version }}" ] && echo "${{ inputs.version }}" | grep -q "\-beta"; then
+          is_beta=true
+          echo "DEVPROXY_BETA=true" >> $GITHUB_ENV
+        fi
+
         # Construct the installation command
         if [ -n "${{ inputs.version }}" ]; then
-          echo "📋 Installing Dev Proxy version: ${{ inputs.version }}"
-          bash -c "$(curl -sL https://aka.ms/devproxy/setup.sh)" -- "${{ inputs.version }}"
+          if [ "$is_beta" = true ]; then
+            echo "📋 Installing Dev Proxy beta version: ${{ inputs.version }}"
+            bash -c "$(curl -sL https://aka.ms/devproxy/setup-beta.sh)" -- "${{ inputs.version }}"
+          else
+            echo "📋 Installing Dev Proxy version: ${{ inputs.version }}"
+            bash -c "$(curl -sL https://aka.ms/devproxy/setup.sh)" -- "${{ inputs.version }}"
+          fi
         else
           echo "📋 Installing latest version of Dev Proxy"
           bash -c "$(curl -sL https://aka.ms/devproxy/setup.sh)"
