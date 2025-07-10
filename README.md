@@ -9,6 +9,7 @@ A collection of GitHub Actions for using [Dev Proxy](https://aka.ms/devproxy) in
 - [`stop`](#stop) - Stop Dev Proxy instance
 - [`record-start`](#record-start) - Start recording mode
 - [`record-stop`](#record-stop) - Stop recording mode
+- [`chromium-cert`](#chromium-cert) - Install the Dev Proxy certificate for Chromium browsers
 
 ## Usage
 
@@ -86,6 +87,15 @@ Stop recording mode.
 ```yaml
 - name: Stop recording
   uses: dev-proxy-tools/actions/record-stop@v1
+```
+
+### Chromium Certificate
+
+Install the Dev Proxy certificate for Chromium browsers in GitHub Actions workflows.
+
+```yaml
+- name: Install the Dev Proxy certificate for Chromium
+  uses: dev-proxy-tools/actions/chromium-cert@v1
 ```
 
 ## Example Workflow

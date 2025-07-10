@@ -1,0 +1,21 @@
+name: Install the Dev Proxy certificate for Chromium
+description: Install the Dev Proxy certificate for Chromium browsers in GitHub Actions workflows.
+runs:
+  using: "composite"
+  steps:
+    - name: Install the Dev Proxy certificate for Chromium
+      id: install-cert
+      run: |
+        # From: https://www.eliostruyf.com/playwright-microsoft-dev-proxy-github-actions/
+        echo "Export the Dev Proxy's Root Certificate"
+        openssl pkcs12 -in ~/.config/dev-proxy/rootCert/rootCert.pfx -clcerts -nokeys -out dev-proxy-ca.crt -passin pass:""
+
+        # echo "Installing certutil"
+        sudo apt install libnss3-tools
+
+        # echo "Adding certificate to the NSS database for Chromium"
+        mkdir -p $HOME/.pki/nssdb
+        certutil --empty-password -d $HOME/.pki/nssdb -N
+        certutil -d sql:$HOME/.pki/nssdb -A -t "CT,," -n dev-proxy-ca.crt -i dev-proxy-ca.crt
+        echo "Certificate trusted."
+      shell: bash
