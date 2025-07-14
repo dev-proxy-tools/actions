@@ -7,8 +7,8 @@ permissions:
   models: read
 
 jobs:
-  test-playwright-web-app:
-    name: Dev Proxy integration with Playwright
+  test-llm-usage:
+    name: Test Dev Proxy LLM Usage with Playwright
     runs-on: ubuntu-latest
 
     steps:
@@ -31,19 +31,11 @@ jobs:
       - name: Install Edge browser
         run: npm run install:msedge
 
-      - name: Install Dev Proxy
-        uses: dev-proxy-tools/actions/install@v1
+      - name: Setup Dev Proxy
+        uses: dev-proxy-tools/actions/setup@v1
         with:
+          auto-record: true
           version: v1.0.0-beta.4
-
-      - name: Start Dev Proxy
-        uses: dev-proxy-tools/actions/start@v1
-
-      - name: Install the Dev Proxy certificate for Chromium
-        uses: dev-proxy-tools/actions/chromium-cert@v1
-
-      - name: Start recording
-        uses: dev-proxy-tools/actions/record-start@v1
 
       - name: Run Playwright tests
         run: npm test
