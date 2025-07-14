@@ -66,7 +66,7 @@ runs:
           echo "Starting Dev Proxy..."
 
           # Create directory for Dev Proxy configuration and certificates
-    
+
           root_cert_dir="$HOME/.config/dev-proxy"
           mkdir -p "$root_cert_dir"
 
@@ -77,7 +77,7 @@ runs:
 
           # Set environment variables for Dev Proxy
           export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
-                   
+
           # Set config arguments if provided
           config_arg=""
           if [ -n "${{ inputs.config-file }}" ]; then
@@ -109,7 +109,7 @@ runs:
           echo "Checking for certificate at: $cert_path"
           if [ -f "$cert_path" ]; then
             echo "✅ Certificate found"
-            
+
             echo "Exporting the Dev Proxy's Root Certificate"
             if openssl pkcs12 -in "$cert_path" -clcerts -nokeys -out dev-proxy-ca.crt -passin pass:""; then
               echo "Installing the Dev Proxy's Root Certificate"
@@ -121,7 +121,7 @@ runs:
               # Set the system proxy settings
               echo "http_proxy=http://127.0.0.1:8000" >> $GITHUB_ENV
               echo "https_proxy=http://127.0.0.1:8000" >> $GITHUB_ENV
-                    
+
               echo "✅ Dev Proxy certificate trusted successfully!"
             else
               echo "❌ Failed to export certificate from $cert_path"

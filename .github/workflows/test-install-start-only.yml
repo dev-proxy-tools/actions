@@ -1,0 +1,26 @@
+name: Test Enhanced Install - Start Proxy Only
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-install-start-only:
+    name: Test Install and Start Only
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install and start Dev Proxy (no recording)
+        uses: ./install
+        with:
+          start-proxy: true
+
+      - name: Test proxy functionality
+        run: |
+          curl -ikx http://127.0.0.1:8000 https://jsonplaceholder.typicode.com/posts/1
+
+      - name: Show logs
+        run: |
+          echo "Dev Proxy logs:"
+          cat devproxy.log

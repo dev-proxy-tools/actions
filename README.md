@@ -27,11 +27,31 @@ Install Dev Proxy in your workflow. You can specify a version, or use the latest
     version: v0.29.2 # optional, defaults to latest
 ```
 
+**Enhanced Usage (simplified workflow):**
+
+You can now chain multiple operations in a single step:
+
+```yaml
+- name: Install and start Dev Proxy with recording
+  uses: dev-proxy-tools/actions/install@v1
+  with:
+    start-recording: true  # automatically installs, starts proxy, and begins recording
+    log-file: custom.log   # optional, defaults to devproxy.log
+    config-file: ./my-config.json  # optional
+```
+
+This replaces the need for separate `install`, `start`, and `record-start` actions.
+
 **Inputs:**
 
 | Name | Description | Required | Default |
 |------|-------------|----------|---------|
 | `version` | Version of Dev Proxy to install (e.g., v0.29.2, v1.0.0-beta.2) | No | latest |
+| `start-proxy` | Automatically start Dev Proxy after installation | No | `false` |
+| `start-recording` | Automatically start recording after starting Dev Proxy (implies start-proxy=true) | No | `false` |
+| `log-file` | The file to log Dev Proxy output to (used when start-proxy=true) | No | `devproxy.log` |
+| `config-file` | The path to the Dev Proxy configuration file (used when start-proxy=true) | No | Uses default configuration |
+| `auto-stop` | Automatically stop Dev Proxy when workflow completes (used when start-proxy=true) | No | `true` |
 
 ### Start
 
@@ -102,6 +122,8 @@ Install the Dev Proxy certificate for Chromium browsers in GitHub Actions workfl
 
 The following example demonstrates how to use the Dev Proxy actions in a GitHub Actions workflow.
 
+### Traditional Approach (multiple steps)
+
 ```yaml
 name: Example Dev Proxy workflow
 
@@ -139,6 +161,39 @@ jobs:
           echo "Dev Proxy logs:"
           cat devproxy.log
 ```
+
+### Simplified Approach (single step)
+
+```yaml
+name: Example Dev Proxy workflow (simplified)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  example-dev-proxy:
+    name: Example Dev Proxy Job  
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Dev Proxy and start recording
+        uses: dev-proxy-tools/actions/install@v1
+        with:
+          start-recording: true
+
+      - name: Send request
+        run: |
+          curl -ikx http://127.0.0.1:8000 https://jsonplaceholder.typicode.com/posts
+
+      - name: Stop recording
+        uses: dev-proxy-tools/actions/record-stop@v1
+
+      - name: Show logs
+        run: |
+          echo "Dev Proxy logs:"
+          cat devproxy.log
+```
+
+> **Note**: The individual actions (`start`, `record-start`, etc.) remain available for users who prefer more granular control over their workflows.
 
 ## License
 
