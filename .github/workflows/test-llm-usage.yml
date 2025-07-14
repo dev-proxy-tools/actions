@@ -33,18 +33,12 @@ jobs:
         working-directory: ./tests/llm-usage
         run: npm run install:msedge
 
-      - name: Install Dev Proxy
-        uses: ./install
+      - name: Setup Dev Proxy
+        uses: ./setup
         with:
           version: v1.0.0-beta.4
-
-      - name: Start Dev Proxy
-        uses: ./start
-        with:
           config-file: ./tests/llm-usage/.devproxy/devproxyrc.json
-
-      - name: Start recording
-        uses: ./record-start
+          auto-record: true
 
       - name: Run Playwright tests
         working-directory: ./tests/llm-usage
