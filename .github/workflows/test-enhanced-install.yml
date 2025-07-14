@@ -1,0 +1,134 @@
+name: Test Enhanced Install Action
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-install-only:
+    name: Test Install Only (existing behavior)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Dev Proxy only
+        id: install-only
+        uses: ./install
+
+      - name: Verify Dev Proxy installed
+        run: |
+          # Check if devproxy directory exists
+          if [ -d "./devproxy" ]; then
+            echo "✅ Dev Proxy installed successfully"
+            ls -la ./devproxy/
+          else
+            echo "❌ Dev Proxy not found"
+            exit 1
+          fi
+
+  test-install-and-start:
+    name: Test Install and Start
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install and start Dev Proxy
+        id: install-and-start
+        uses: ./install
+        with:
+          start-proxy: true
+
+      - name: Verify Dev Proxy is running
+        run: |
+          # Check if Dev Proxy is responding
+          if curl -s http://127.0.0.1:8897/proxy/health; then
+            echo "✅ Dev Proxy is running"
+          else
+            echo "❌ Dev Proxy is not responding"
+            exit 1
+          fi
+
+      - name: Test proxy functionality
+        run: |
+          curl -ikx http://127.0.0.1:8000 https://jsonplaceholder.typicode.com/posts/1
+
+      - name: Show logs
+        run: |
+          echo "Dev Proxy logs:"
+          cat devproxy.log
+
+  test-install-start-and-record:
+    name: Test Install, Start, and Record
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install, start, and begin recording
+        id: install-start-record
+        uses: ./install
+        with:
+          start-recording: true
+
+      - name: Verify Dev Proxy is running and recording
+        run: |
+          # Check if Dev Proxy is responding
+          if curl -s http://127.0.0.1:8897/proxy/health; then
+            echo "✅ Dev Proxy is running"
+          else
+            echo "❌ Dev Proxy is not responding"
+            exit 1
+          fi
+
+      - name: Test proxy functionality with recording
+        run: |
+          curl -ikx http://127.0.0.1:8000 https://jsonplaceholder.typicode.com/posts/1
+
+      - name: Stop recording
+        uses: ./record-stop
+
+      - name: Show logs
+        run: |
+          echo "Dev Proxy logs:"
+          cat devproxy.log
+
+  test-install-with-custom-config:
+    name: Test Install with Custom Config
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create custom config
+        run: |
+          cat > custom-config.json << 'EOF'
+          {
+            "$schema": "https://aka.ms/devproxy/schemas/v0.29.2/rc.schema.json",
+            "proxies": [
+              {
+                "name": "jsonplaceholder",
+                "host": "jsonplaceholder.typicode.com",
+                "port": 443,
+                "ssl": true
+              }
+            ]
+          }
+          EOF
+
+      - name: Install and start with custom config
+        id: install-custom-config
+        uses: ./install
+        with:
+          start-proxy: true
+          config-file: custom-config.json
+          log-file: custom-devproxy.log
+
+      - name: Test proxy functionality
+        run: |
+          curl -ikx http://127.0.0.1:8000 https://jsonplaceholder.typicode.com/posts/1
+
+      - name: Show logs
+        run: |
+          echo "Custom Dev Proxy logs:"
+          cat custom-devproxy.log
