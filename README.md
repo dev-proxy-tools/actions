@@ -45,13 +45,6 @@ Start Dev Proxy with optional configuration file. Dev Proxy will run in the back
     log-file: devproxy.log           # optional, defaults to devproxy.log
     config-file: ./devproxyrc.json   # optional, will use default configuration if not provided
     auto-stop: true                  # optional, defaults to true
-
-- name: Use Dev Proxy URLs
-  run: |
-    echo "Proxy URL: ${{ steps.start-devproxy.outputs.proxy-url }}"
-    echo "API URL: ${{ steps.start-devproxy.outputs.api-url }}"
-    # Use the proxy URL for requests
-    curl -x "${{ steps.start-devproxy.outputs.proxy-url }}" https://example.com
 ```
 
 This action automatically:
@@ -141,10 +134,9 @@ jobs:
         id: start-recording
         uses: dev-proxy-tools/actions/record-start@v1
 
-      - name: Send request using proxy URL output
+      - name: Send request
         id: send-request
         run: |
-          echo "Using proxy URL: ${{ steps.start-devproxy.outputs.proxy-url }}"
           curl -ikx "${{ steps.start-devproxy.outputs.proxy-url }}" https://jsonplaceholder.typicode.com/posts
 
       - name: Stop recording
