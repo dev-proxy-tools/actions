@@ -39,6 +39,7 @@ Start Dev Proxy with optional configuration file. Dev Proxy will run in the back
 
 ```yaml
 - name: Start Dev Proxy
+  id: start-devproxy
   uses: dev-proxy-tools/actions/start@v1
   with:
     log-file: devproxy.log           # optional, defaults to devproxy.log
@@ -51,6 +52,7 @@ This action automatically:
  - Installs and trusts Dev Proxy certificate on the runner.
  - Sets the `http_proxy` and `https_proxy` environment variables to `http://127.0.0.1:8000`, allowing subsequent steps to route HTTP and HTTPS traffic through Dev Proxy.
  - Registers a post-step that will stop Dev Proxy and clean up the environment variables when the workflow completes, unless `auto-stop` is set to `false`.
+ - Provides the proxy and API URLs as action outputs for use in subsequent steps.
 
 **Inputs:**
 
@@ -59,6 +61,13 @@ This action automatically:
 | `log-file` | The file to log Dev Proxy output to | Yes | `devproxy.log` |
 | `config-file` | The path to the Dev Proxy configuration file | No | Uses default configuration |
 | `auto-stop` | Automatically stop Dev Proxy after the workflow completes | No | `true` |
+
+**Outputs:**
+
+| Name | Description |
+|------|-------------|
+| `proxy-url` | The URL of the running Dev Proxy instance (`http://127.0.0.1:8000`) |
+| `api-url` | The URL of the Dev Proxy API (`http://127.0.0.1:8897/proxy`) |
 
 ### Stop
 
@@ -128,7 +137,7 @@ jobs:
       - name: Send request
         id: send-request
         run: |
-          curl -ikx http://127.0.0.1:8000 https://jsonplaceholder.typicode.com/posts
+          curl -ikx "${{ steps.start-devproxy.outputs.proxy-url }}" https://jsonplaceholder.typicode.com/posts
 
       - name: Stop recording
         id: stop-recording
