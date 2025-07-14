@@ -23,6 +23,9 @@ inputs:
     description: Automatically stop Dev Proxy when workflow completes (only used when start is true)
     required: false
     default: "true"
+  report-job-summary:
+    description: Path to write job summary with Dev Proxy reports (e.g., $GITHUB_STEP_SUMMARY). If not provided, no summary is created.
+    required: false
 outputs:
   proxy-url:
     description: The URL of the running Dev Proxy instance (only set when start is true)
@@ -56,6 +59,15 @@ runs:
           
           # Call the stop script
           ${{ github.action_path }}/../scripts/stop-devproxy.sh "${{ inputs.auto-stop }}"
+
+          # Generate job summary if requested
+          if [ -n "${{ inputs.report-job-summary }}" ]; then
+            # Make script executable
+            chmod +x ${{ github.action_path }}/../scripts/generate-job-summary.sh
+            
+            # Call the job summary script
+            ${{ github.action_path }}/../scripts/generate-job-summary.sh "${{ inputs.report-job-summary }}"
+          fi
 
     - name: Start recording (conditional)
       if: ${{ inputs.auto-start == 'true' && inputs.auto-record == 'true' }}

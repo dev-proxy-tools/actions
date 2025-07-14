@@ -26,12 +26,13 @@ Setup Dev Proxy in your workflow.
   id: setup-devproxy
   uses: dev-proxy-tools/actions/setup@v1
   with:
-    auto-start: true                 # optional, defaults to true
-    auto-stop: true                  # optional, defaults to true
-    auto-record: true                # optional, defaults to false
-    config-file: ./devproxyrc.json   # optional, will use default configuration if not provided
-    log-file: devproxy.log           # optional, defaults to devproxy.log
-    version: v0.29.2                 # optional, defaults to latest
+    auto-start: true                          # optional, defaults to true
+    auto-stop: true                           # optional, defaults to true
+    auto-record: true                         # optional, defaults to false
+    config-file: ./devproxyrc.json            # optional, will use default configuration if not provided
+    log-file: devproxy.log                    # optional, defaults to devproxy.log
+    version: v0.29.2                          # optional, defaults to latest
+    report-job-summary: $GITHUB_STEP_SUMMARY  # optional, include reports in job summary
 ```
 
 This action automatically:
@@ -43,6 +44,7 @@ This action automatically:
  - Sets the `http_proxy` and `https_proxy` environment variables to `http://127.0.0.1:8000`
  - Registers a post-step that will stop Dev Proxy and clean up when the workflow completes
  - Provides the proxy and API URLs as action outputs for use in subsequent steps
+ - Generates a job summary containing the output of Dev Proxy reports if `report-job-summary` is specified
 
 **Inputs:**
 
@@ -54,6 +56,7 @@ This action automatically:
 | `log-file` | The file to log Dev Proxy output to (only used when start is true) | No | `devproxy.log` |
 | `config-file` | The path to the Dev Proxy configuration file (only used when start is true) | No | Uses default configuration |
 | `version` | Version of Dev Proxy to install (e.g., v0.29.2, v1.0.0-beta.2) | No | latest |
+| `report-job-summary` | Path to write job summary with Dev Proxy reports (e.g., `$GITHUB_STEP_SUMMARY`). If not provided, no summary is created. | No | None |
 
 **Outputs:**
 
@@ -173,6 +176,7 @@ jobs:
         with:
           version: v0.29.2
           auto-record: true
+          report-job-summary: $GITHUB_STEP_SUMMARY
 
       - name: Start recording
         uses: dev-proxy-tools/actions/record-start@v1

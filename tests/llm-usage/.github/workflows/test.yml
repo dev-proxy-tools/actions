@@ -36,6 +36,7 @@ jobs:
         with:
           auto-record: true
           version: v1.0.0-beta.4
+          report-job-summary: $GITHUB_STEP_SUMMARY
 
       - name: Run Playwright tests
         run: npm test
@@ -48,10 +49,6 @@ jobs:
         with:
           name: Reports
           path: ./*Reporter*
-
-      - name: Update job summary
-        run: |
-          echo OpenAITelemetryPlugin_MarkdownReporter.md >> $GITHUB_STEP_SUMMARY
 
       - name: Show logs
         if: always()
