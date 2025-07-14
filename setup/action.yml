@@ -1,0 +1,49 @@
+name: Setup Dev Proxy
+description: Setup Dev Proxy with optional version specification and start configuration
+inputs:
+  version:
+    description: Version of Dev Proxy to install (e.g., v0.29.2). If not specified, the latest version will be installed.
+    required: false
+  auto-start:
+    description: Start Dev Proxy after installation
+    required: false
+    default: "true"
+  auto-record:
+    description: Automatically start recording after setup (only used when start is true)
+    required: false
+    default: "false"
+  log-file:
+    description: The file to log Dev Proxy output to (only used when start is true)
+    required: false
+    default: devproxy.log
+  config-file:
+    description: The path to the Dev Proxy configuration file (only used when start is true)
+    required: false
+  auto-stop:
+    description: Automatically stop Dev Proxy when workflow completes (only used when start is true)
+    required: false
+    default: "true"
+outputs:
+  proxy-url:
+    description: The URL of the running Dev Proxy instance (only set when start is true)
+    value: ${{ steps.start-conditional.outputs.proxy-url }}
+  api-url:
+    description: The URL of the Dev Proxy API (only set when start is true)
+    value: ${{ steps.start-conditional.outputs.api-url }}
+runs:
+  using: composite
+  steps:
+    - name: Install Dev Proxy
+      id: install
+      uses: ./install
+      with:
+        version: ${{ inputs.version }}
+
+    - name: Start Dev Proxy (conditional)
+      id: start-conditional
+      if: ${{ inputs.auto-start == 'true' }}
+      uses: ./start
+      with:
+        log-file: ${{ inputs.log-file }}
+        config-file: ${{ inputs.config-file }}
+        auto-stop: ${{ inputs.auto-stop }}

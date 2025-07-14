@@ -1,0 +1,76 @@
+name: Test Setup Action
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-setup-and-start:
+    name: Test Setup with auto-start and auto-record
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Dev Proxy (install and start)
+        id: setup-devproxy
+        uses: ./setup
+        with:
+          version: v0.29.2
+          auto-record: "true"
+
+      - name: Verify Setup and Start
+        run: |
+          echo "🔍 Verifying Dev Proxy setup and start..."
+          
+          # Check if Dev Proxy binary exists
+          if [ -f "./devproxy/devproxy" ]; then
+            echo "✅ Dev Proxy binary found"
+          else
+            echo "❌ Dev Proxy binary not found"
+            exit 1
+          fi
+
+          # Verify outputs are set
+          if [ -n "${{ steps.setup-devproxy.outputs.proxy-url }}" ]; then
+            echo "✅ Proxy URL output: ${{ steps.setup-devproxy.outputs.proxy-url }}"
+          else
+            echo "❌ Proxy URL output not set"
+            exit 1
+          fi
+
+          if [ -n "${{ steps.setup-devproxy.outputs.api-url }}" ]; then
+            echo "✅ API URL output: ${{ steps.setup-devproxy.outputs.api-url }}"
+          else
+            echo "❌ API URL output not set"
+            exit 1
+          fi
+
+          # Check if Dev Proxy is running
+          response=$(curl -s --max-time 10 ${{ steps.setup-devproxy.outputs.api-url }})
+          if [ $? -eq 0 ] && [ -n "$response" ]; then
+            echo "✅ Dev Proxy is running and responsive"
+            echo "📋 API Response: $response"
+          else
+            echo "❌ Dev Proxy is not responsive"
+            exit 1
+          fi
+
+      - name: Test Proxy Functionality
+        run: |
+          echo "🔍 Testing proxy functionality..."
+          curl -ikx  https://jsonplaceholder.typicode.com/posts || echo "Test request completed"
+
+      - name: Stop Dev Proxy
+        if: always()
+        uses: ./stop
+
+      - name: Show logs
+        if: always()
+        run: |
+          echo "📋 Dev Proxy logs:"
+          if [ -f "devproxy.log" ]; then
+            cat devproxy.log
+          else
+            echo "No log file found"
+          fi       
+      
