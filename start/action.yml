@@ -12,6 +12,13 @@ inputs:
     description: Automatically stop Dev Proxy when workflow completes
     required: false
     default: "true"
+outputs:
+  proxy-url:
+    description: The URL of the running Dev Proxy instance
+    value: ${{ steps.start-with-post-step.outputs.proxy-url }}
+  api-url:
+    description: The URL of the Dev Proxy API
+    value: ${{ steps.start-with-post-step.outputs.api-url }}
 runs:
   using: composite
   steps:
@@ -62,6 +69,12 @@ runs:
             fi
             sleep 1
           done
+
+          echo "Dev Proxy is running!"
+          
+          # Set action outputs
+          echo "proxy-url=http://127.0.0.1:8000" >> $GITHUB_OUTPUT
+          echo "api-url=http://127.0.0.1:8897/proxy" >> $GITHUB_OUTPUT
 
           echo "🔒 Trusting Dev Proxy certificate..."
 

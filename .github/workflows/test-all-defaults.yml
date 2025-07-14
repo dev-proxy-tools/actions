@@ -23,10 +23,11 @@ jobs:
         id: start-recording
         uses: ./record-start
 
-      - name: Send request
+      - name: Send request using output
         id: send-request
         run: |
-          curl -ikx http://127.0.0.1:8000 https://jsonplaceholder.typicode.com/posts
+          echo "Using proxy URL from output: ${{ steps.start-devproxy.outputs.proxy-url }}"
+          curl -ikx "${{ steps.start-devproxy.outputs.proxy-url }}" https://jsonplaceholder.typicode.com/posts
 
       - name: Stop recording
         id: stop-recording

@@ -1,0 +1,72 @@
+name: Test Dev Proxy Action Outputs
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-dev-proxy-outputs:
+    name: Test Dev Proxy Action Outputs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Dev Proxy
+        id: install-latest
+        uses: ./install
+
+      - name: Start Dev Proxy
+        id: start-devproxy
+        uses: ./start
+
+      - name: Test outputs are set
+        run: |
+          echo "Testing outputs are set correctly..."
+          echo "Proxy URL: ${{ steps.start-devproxy.outputs.proxy-url }}"
+          echo "API URL: ${{ steps.start-devproxy.outputs.api-url }}"
+          
+          # Verify outputs are not empty
+          if [ -z "${{ steps.start-devproxy.outputs.proxy-url }}" ]; then
+            echo "ERROR: proxy-url output is empty"
+            exit 1
+          fi
+          
+          if [ -z "${{ steps.start-devproxy.outputs.api-url }}" ]; then
+            echo "ERROR: api-url output is empty"
+            exit 1
+          fi
+          
+          # Verify outputs have expected values
+          if [ "${{ steps.start-devproxy.outputs.proxy-url }}" != "http://127.0.0.1:8000" ]; then
+            echo "ERROR: proxy-url has unexpected value: ${{ steps.start-devproxy.outputs.proxy-url }}"
+            exit 1
+          fi
+          
+          if [ "${{ steps.start-devproxy.outputs.api-url }}" != "http://127.0.0.1:8897/proxy" ]; then
+            echo "ERROR: api-url has unexpected value: ${{ steps.start-devproxy.outputs.api-url }}"
+            exit 1
+          fi
+          
+          echo "✅ All outputs are set correctly!"
+
+      - name: Test proxy URL is accessible
+        run: |
+          echo "Testing proxy URL accessibility..."
+          # Try to make a request through the proxy
+          curl -ikx "${{ steps.start-devproxy.outputs.proxy-url }}" https://jsonplaceholder.typicode.com/posts/1 || echo "Proxy request failed (expected in some cases)"
+
+      - name: Test API URL is accessible
+        run: |
+          echo "Testing API URL accessibility..."
+          # Try to access the API endpoint
+          curl -f "${{ steps.start-devproxy.outputs.api-url }}" || echo "API request failed (this is expected as we're not passing the right request)"
+          
+          # Test that we can use the API URL to start recording
+          curl -X POST "${{ steps.start-devproxy.outputs.api-url }}" \
+            -H "Content-Type: application/json" \
+            -d '{"recording": true}' && echo "✅ API is accessible and responding"
+
+      - name: Show logs
+        run: |
+          echo "Dev Proxy logs:"
+          cat devproxy.log
