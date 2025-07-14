@@ -42,8 +42,21 @@ runs:
     - name: Start Dev Proxy (conditional)
       id: start-conditional
       if: ${{ inputs.auto-start == 'true' }}
-      uses: ./start
+      uses: pyTooling/Actions/with-post-step@v5.1.0
       with:
-        log-file: ${{ inputs.log-file }}
-        config-file: ${{ inputs.config-file }}
-        auto-stop: ${{ inputs.auto-stop }}
+        main: |
+          # Make script executable
+          chmod +x ${{ github.action_path }}/../scripts/start-devproxy.sh
+          
+          # Call the start script
+          ${{ github.action_path }}/../scripts/start-devproxy.sh "${{ inputs.log-file }}" "${{ inputs.config-file }}"
+        post: |
+          # Make script executable
+          chmod +x ${{ github.action_path }}/../scripts/stop-devproxy.sh
+          
+          # Call the stop script
+          ${{ github.action_path }}/../scripts/stop-devproxy.sh "${{ inputs.auto-stop }}"
+
+    - name: Start recording (conditional)
+      if: ${{ inputs.auto-start == 'true' && inputs.auto-record == 'true' }}
+      uses: ./record-start

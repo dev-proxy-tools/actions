@@ -45,11 +45,19 @@ jobs:
             exit 1
           fi
 
-          # Check if Dev Proxy is running
+          # Check if Dev Proxy is running and recording
           response=$(curl -s --max-time 10 ${{ steps.setup-devproxy.outputs.api-url }})
           if [ $? -eq 0 ] && [ -n "$response" ]; then
             echo "✅ Dev Proxy is running and responsive"
             echo "📋 API Response: $response"
+            
+            # Check if recording is enabled
+            if echo "$response" | grep -q '"recording":true'; then
+              echo "✅ Dev Proxy is recording"
+            else
+              echo "❌ Dev Proxy is not recording"
+              exit 1
+            fi
           else
             echo "❌ Dev Proxy is not responsive"
             exit 1
@@ -58,11 +66,7 @@ jobs:
       - name: Test Proxy Functionality
         run: |
           echo "🔍 Testing proxy functionality..."
-          curl -ikx  https://jsonplaceholder.typicode.com/posts || echo "Test request completed"
-
-      - name: Stop Dev Proxy
-        if: always()
-        uses: ./stop
+          curl -ikx "${{ steps.setup-devproxy.outputs.proxy-url }}" https://jsonplaceholder.typicode.com/posts
 
       - name: Show logs
         if: always()
