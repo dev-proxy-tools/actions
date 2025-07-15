@@ -54,8 +54,8 @@ The `setup` action provides the following outputs that can be used in subsequent
 
 | Name | Description |
 |------|-------------|
-| `api-url` | URL of the Dev Proxy API (e.g. `http://127.0.0.1:8897/proxy`) - only set when start is true |
-| `proxy-url` | URL of the running Dev Proxy instance (e.g. `http://127.0.0.1:8000`) - only set when start is true |
+| `api-url` | The URL of the Dev Proxy API |
+| `proxy-url` | The URL of the running Dev Proxy instance |
 
 ### Start
 
@@ -101,8 +101,8 @@ The `start` action provides the following outputs that can be used in subsequent
 
 | Name | Description |
 |------|-------------|
-| `api-url` | The URL of the Dev Proxy API (`http://127.0.0.1:8897/proxy`) |
-| `proxy-url` | The URL of the running Dev Proxy instance (`http://127.0.0.1:8000`) |
+| `api-url` | The URL of the Dev Proxy API |
+| `proxy-url` | The URL of the running Dev Proxy instance |
 
 ### Stop
 
