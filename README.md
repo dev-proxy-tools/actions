@@ -224,6 +224,59 @@ jobs:
           cat devproxy.log
 ```
 
+## GitHub Copilot Agent Integration
+
+The following prompt is designed for GitHub Copilot agents to assist with updating workflows to use Dev Proxy actions. Copy this prompt when asking Copilot to help integrate Dev Proxy into your repository workflows.
+
+### Copilot Agent Prompt
+
+```
+Help me update my GitHub Actions workflows to use Dev Proxy actions for intercepting and analyzing HTTP/HTTPS requests. 
+
+Please:
+1. Analyze existing workflow files in .github/workflows/ directory
+2. Identify workflows that make HTTP/HTTPS requests (look for steps using curl, npm, pip, API calls, or web testing)
+3. Update workflows to use Dev Proxy actions from dev-proxy-tools/actions
+
+For each workflow that could benefit from Dev Proxy:
+- Add Dev Proxy setup step early in the job: `uses: dev-proxy-tools/actions/setup@v1`
+- Enable recording mode with `auto-record: true` if the workflow tests or monitors API usage
+- Use the proxy URL output `${{ steps.setup-devproxy.outputs.proxy-url }}` in curl commands with `-x` flag
+- Add Dev Proxy certificate installation for browser-based testing: `uses: dev-proxy-tools/actions/chromium-cert@v1`
+- Include log output step to show Dev Proxy activity: `cat devproxy.log`
+
+Key integration patterns:
+- For API testing: Use setup action with auto-record: true
+- For web testing with Playwright/Selenium: Add chromium-cert action after setup
+- For CI/CD pipelines: Use setup action to monitor dependency downloads and API calls
+- For manual control: Use individual start/stop actions instead of setup
+
+Example transformation:
+BEFORE:
+```yaml
+- name: Test API
+  run: curl https://api.example.com/data
+```
+
+AFTER:
+```yaml
+- name: Setup Dev Proxy
+  id: setup-devproxy
+  uses: dev-proxy-tools/actions/setup@v1
+  with:
+    auto-record: true
+
+- name: Test API
+  run: curl -x "${{ steps.setup-devproxy.outputs.proxy-url }}" https://api.example.com/data
+
+- name: Show Dev Proxy logs
+  if: always()
+  run: cat devproxy.log
+```
+
+Apply these changes to relevant workflows in my repository.
+```
+
 ## Samples
 
 You can find more examples and samples in the [tests](./tests/) directory.
