@@ -38,15 +38,13 @@ runs:
           chmod +x ${{ github.action_path }}/../scripts/start-devproxy.sh
 
           # Call the start script
-          ${{ github.action_path }}/../scripts/start-devproxy.sh \
-            "${{ inputs.log-file }}" "${{ inputs.config-file }}"
+          ${{ github.action_path }}/../scripts/start-devproxy.sh "${{ inputs.log-file }}" "${{ inputs.config-file }}"
         post: |
           # Make script executable
           chmod +x ${{ github.action_path }}/../scripts/stop-devproxy.sh
 
           # Call the stop script
-          ${{ github.action_path }}/../scripts/stop-devproxy.sh \
-            "${{ inputs.auto-stop }}"
+          ${{ github.action_path }}/../scripts/stop-devproxy.sh "${{ inputs.auto-stop }}"
 
           # Generate job summary if requested
           if [ -n "${{ inputs.report-job-summary }}" ]; then
