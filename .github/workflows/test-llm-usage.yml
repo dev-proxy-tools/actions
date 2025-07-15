@@ -5,7 +5,7 @@ on:
 
 jobs:
   test-playwright-web-app:
-    name: Dev Proxy integration with Playwright
+    name: Test Dev Proxy LLM Usage with Playwright
     runs-on: ubuntu-latest
     permissions:
       models: read
@@ -36,10 +36,14 @@ jobs:
       - name: Setup Dev Proxy
         uses: ./setup
         with:
-          version: v1.0.0-beta.4
-          config-file: ./tests/llm-usage/.devproxy/devproxyrc.json
           auto-record: true
+          auto-stop: false
+          config-file: ./tests/llm-usage/.devproxy/devproxyrc.json
           report-job-summary: $GITHUB_STEP_SUMMARY
+          version: v1.0.0-beta.4
+
+      - name: Install the Dev Proxy certificate for Chromium
+        uses: ./chromium-cert
 
       - name: Run Playwright tests
         working-directory: ./tests/llm-usage
@@ -56,15 +60,15 @@ jobs:
           name: Reports
           path: ./*Reporter*
 
-      - name: Show logs
-        if: always()
-        run: |
-          echo "Dev Proxy logs:"
-          cat devproxy.log
-
       - name: Upload Dev Proxy logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: devproxy.log
           path: devproxy.log
+
+      - name: Show logs
+        if: always()
+        run: |
+          echo "Dev Proxy logs:"
+          cat devproxy.log

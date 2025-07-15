@@ -7,6 +7,11 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Deprecated
+      run: |
+        echo "⚠️ This action is deprecated. Use 'dev-proxy-tools/actions/setup@v1' instead."
+      shell: bash
+
     - name: Install Dev Proxy
       id: install
       run: |

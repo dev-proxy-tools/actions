@@ -1,21 +1,22 @@
-name: Test Install Beta Version
+name: Test Setup Beta Version
 
 on:
   workflow_dispatch:
 
 jobs:
-  test-install-beta:
-    name: Test Install Beta Version
+  test-setup-beta:
+    name: Test Setup Beta Version
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Dev Proxy Beta
-        id: install-beta
-        uses: ./install
+      - name: Setup Dev Proxy Beta
+        id: setup-beta
+        uses: ./setup
         with:
           version: v1.0.0-beta.2
+          auto-start: false  # Only install, don't start
 
       - name: Verify Beta Installation
         run: |
@@ -39,13 +40,3 @@ jobs:
             echo "❌ DEVPROXY_BETA environment variable not set or incorrect value: $DEVPROXY_BETA"
             exit 1
           fi
-
-      - name: Start Dev Proxy Beta
-        id: start-devproxy-beta
-        uses: ./start
-
-      - name: Show logs
-        if: always()
-        run: |
-          echo "Dev Proxy logs:"
-          cat devproxy.log

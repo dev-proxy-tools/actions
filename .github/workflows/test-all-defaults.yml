@@ -11,28 +11,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Intall Dev Proxy
-        id: install-latest
-        uses: ./install
-
-      - name: Start Dev Proxy
-        id: start-devproxy
-        uses: ./start          
-
-      - name: Start recording
-        id: start-recording
-        uses: ./record-start
+      - name: Setup Dev Proxy
+        id: setup-devproxy
+        uses: ./setup
+        with:
+          auto-record: true
 
       - name: Send request
         id: send-request
         run: |
-          curl -ikx "${{ steps.start-devproxy.outputs.proxy-url }}" https://jsonplaceholder.typicode.com/posts
-
-      - name: Stop recording
-        id: stop-recording
-        uses: ./record-stop
+          curl -ikx "${{ steps.setup-devproxy.outputs.proxy-url }}" https://jsonplaceholder.typicode.com/posts
 
       - name: Show logs
+        if: always()
         run: |
           echo "Dev Proxy logs:"
           cat devproxy.log

@@ -23,13 +23,10 @@ jobs:
       - name: Install Edge browser
         run: npm run install:msedge
 
-      - name: Install Dev Proxy
-        uses: dev-proxy-tools/actions/install@v1
+      - name: Setup Dev Proxy
+        uses: dev-proxy-tools/actions/setup@v1
         with:
           version: v0.29.2
-
-      - name: Start Dev Proxy
-        uses: dev-proxy-tools/actions/start@v1
       
       - name: Install the Dev Proxy certificate for Chromium
         uses: dev-proxy-tools/actions/chromium-cert@v1
