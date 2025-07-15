@@ -90,8 +90,10 @@ You can customize the behavior of the `start` action using the following inputs:
 | Name | Description | Required | Default |
 |------|-------------|----------|---------|
 | `auto-stop` | Automatically stop Dev Proxy after the workflow completes | No | `true` |
+| `auto-record` | Automatically start Dev Proxy in recording mode | No | `false` |
 | `config-file` | Path to the Dev Proxy configuration file | No | Uses default configuration |
-| `log-file` | The file to log Dev Proxy output to | Yes | `devproxy.log` |
+| `log-file` | Path to log Dev Proxy output to | No | `devproxy.log` |
+| `report-job-summary` | Path to output report content for use as summaries (e.g., `$GITHUB_STEP_SUMMARY`). | No | None |
 
 **Outputs:**
 
