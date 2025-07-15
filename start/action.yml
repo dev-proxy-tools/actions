@@ -8,6 +8,10 @@ inputs:
   config-file:
     description: The path to the Dev Proxy configuration file
     required: false
+  auto-record:
+    description: Automatically start recording after starting Dev Proxy
+    required: false
+    default: "false"
   auto-stop:
     description: Automatically stop Dev Proxy when workflow completes
     required: false
@@ -29,12 +33,18 @@ runs:
         main: |
           # Make script executable
           chmod +x ${{ github.action_path }}/../scripts/start-devproxy.sh
-          
+
           # Call the start script
-          ${{ github.action_path }}/../scripts/start-devproxy.sh "${{ inputs.log-file }}" "${{ inputs.config-file }}"
+          ${{ github.action_path }}/../scripts/start-devproxy.sh \
+            "${{ inputs.log-file }}" "${{ inputs.config-file }}"
         post: |
           # Make script executable
           chmod +x ${{ github.action_path }}/../scripts/stop-devproxy.sh
-          
+
           # Call the stop script
-          ${{ github.action_path }}/../scripts/stop-devproxy.sh "${{ inputs.auto-stop }}"
+          ${{ github.action_path }}/../scripts/stop-devproxy.sh \
+            "${{ inputs.auto-stop }}"
+
+    - name: Start recording (conditional)
+      if: ${{ inputs.auto-record == 'true' }}
+      uses: ./record-start
