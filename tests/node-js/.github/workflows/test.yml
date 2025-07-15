@@ -26,8 +26,6 @@ jobs:
       - name: Setup Dev Proxy
         id: setup-devproxy
         uses: dev-proxy-tools/actions/setup@v1
-        with:
-          auto-record: true
 
       - name: Run Node.js test application
         run: |
