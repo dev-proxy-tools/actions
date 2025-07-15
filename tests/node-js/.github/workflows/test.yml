@@ -23,28 +23,19 @@ jobs:
           cd tests/node-js
           npm install
 
-      - name: Intall Dev Proxy
-        id: install-latest
-        uses: dev-proxy-tools/actions/install@v1
-
-      - name: Start Dev Proxy
-        id: start-devproxy
-        uses: dev-proxy-tools/actions/start@v1
-
-      - name: Start recording
-        id: start-recording
-        uses: dev-proxy-tools/actions/record-start@v1
+      - name: Setup Dev Proxy
+        id: setup-devproxy
+        uses: dev-proxy-tools/actions/setup@v1
+        with:
+          auto-record: true
 
       - name: Run Node.js test application
         run: |
           cd tests/node-js
           node index.mjs
 
-      - name: Stop recording
-        id: stop-recording
-        uses: dev-proxy-tools/actions/record-stop@v1
-
       - name: Show logs
+        if: always()
         run: |
           echo "Dev Proxy logs:"
           cat devproxy.log

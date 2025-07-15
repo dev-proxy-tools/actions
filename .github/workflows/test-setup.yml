@@ -16,7 +16,7 @@ jobs:
         uses: ./setup
         with:
           version: v0.29.2
-          auto-record: "true"
+          auto-record: true
 
       - name: Verify Setup and Start
         run: |
@@ -71,10 +71,6 @@ jobs:
       - name: Show logs
         if: always()
         run: |
-          echo "📋 Dev Proxy logs:"
-          if [ -f "devproxy.log" ]; then
-            cat devproxy.log
-          else
-            echo "No log file found"
-          fi       
+          echo "Dev Proxy logs:"
+          cat devproxy.log
       

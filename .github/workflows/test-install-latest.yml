@@ -1,19 +1,21 @@
-name: Test Install Latest Version
+name: Test Setup Latest Version
 
 on:
   workflow_dispatch:
 
 jobs:
-  test-install-latest:
-    name: Test Install Latest Version
+  test-setup-latest:
+    name: Test Setup Latest Version
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Test Install Latest
-        id: install-latest
-        uses: ./install
+      - name: Test Setup Latest
+        id: setup-latest
+        uses: ./setup
+        with:
+          auto-start: false
 
       - name: Verify Installation
         run: |

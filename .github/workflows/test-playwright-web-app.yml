@@ -5,7 +5,7 @@ on:
 
 jobs:
   test-playwright-web-app:
-    name: Dev Proxy integration with Playwright
+    name: Test Dev Proxy integration with Playwright
     runs-on: ubuntu-latest
 
     steps:
@@ -25,15 +25,11 @@ jobs:
         working-directory: ./tests/playwright-web-app
         run: npm run install:msedge
 
-      - name: Install Dev Proxy
-        uses: ./install
+      - name: Setup Dev Proxy
+        uses: ./setup
         with:
           version: v0.29.2
-
-      - name: Start Dev Proxy
-        uses: ./start
-        with:
-          config-file: "./tests/playwright-web-app/.devproxy/devproxyrc.json"
+          config-file: ./tests/playwright-web-app/.devproxy/devproxyrc.json
       
       - name: Install the Dev Proxy certificate for Chromium
         uses: ./chromium-cert
