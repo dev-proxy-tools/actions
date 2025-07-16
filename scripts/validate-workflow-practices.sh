@@ -4,6 +4,8 @@
 # This script checks that:
 # 1. Only workflows in .github/workflows/ use local actions (./action-name)
 # 2. Only workflows in .github/workflows/ use actions/checkout
+# 
+# It uses a baseline file to grandfather existing violations
 
 set -e
 
@@ -13,8 +15,27 @@ echo "🔍 Validating workflow best practices..."
 workflow_files=$(find . -name ".git" -prune -o -name "*.yml" -print -o -name "*.yaml" -print)
 
 violations=0
+new_violations=0
 allowed_workflows_dir="./.github/workflows/"
 local_actions=("./install" "./setup" "./start" "./stop" "./record-start" "./record-stop" "./chromium-cert")
+baseline_file="./scripts/workflow-practices-baseline.txt"
+
+# Load baseline violations
+declare -A baseline_violations
+if [[ -f "$baseline_file" ]]; then
+    echo "📋 Loading baseline violations from $baseline_file"
+    while IFS=':' read -r file_path violation_type; do
+        # Skip comments and empty lines
+        if [[ "$file_path" =~ ^[[:space:]]*# ]] || [[ -z "$file_path" ]]; then
+            continue
+        fi
+        # Trim whitespace
+        file_path=$(echo "$file_path" | xargs)
+        violation_type=$(echo "$violation_type" | xargs)
+        
+        baseline_violations["$file_path:$violation_type"]=1
+    done < "$baseline_file"
+fi
 
 # Function to check if a file is a GitHub Actions workflow
 is_workflow_file() {
@@ -35,6 +56,18 @@ is_in_allowed_dir() {
     return 1
 }
 
+# Function to check if violation is in baseline
+is_baseline_violation() {
+    local file="$1"
+    local violation_type="$2"
+    local key="$file:$violation_type"
+    
+    if [[ -n "${baseline_violations[$key]}" ]]; then
+        return 0
+    fi
+    return 1
+}
+
 # Function to check for local action usage
 check_local_actions() {
     local file="$1"
@@ -42,7 +75,12 @@ check_local_actions() {
     
     for action in "${local_actions[@]}"; do
         if grep -q "uses: $action" "$file"; then
-            echo "❌ VIOLATION: $file uses local action '$action' but is not in $allowed_workflows_dir"
+            if is_baseline_violation "$file" "local_action"; then
+                echo "⚠️  BASELINE: $file uses local action '$action' (grandfathered)"
+            else
+                echo "❌ NEW VIOLATION: $file uses local action '$action' but is not in $allowed_workflows_dir"
+                new_violations=$((new_violations + 1))
+            fi
             found_violations=1
         fi
     done
@@ -55,7 +93,12 @@ check_checkout_usage() {
     local file="$1"
     
     if grep -q "uses: actions/checkout" "$file"; then
-        echo "❌ VIOLATION: $file uses 'actions/checkout' but is not in $allowed_workflows_dir"
+        if is_baseline_violation "$file" "checkout"; then
+            echo "⚠️  BASELINE: $file uses 'actions/checkout' (grandfathered)"
+        else
+            echo "❌ NEW VIOLATION: $file uses 'actions/checkout' but is not in $allowed_workflows_dir"
+            new_violations=$((new_violations + 1))
+        fi
         return 1
     fi
     
@@ -91,13 +134,19 @@ for file in $workflow_files; do
 done
 
 echo ""
-if [ $violations -eq 0 ]; then
-    echo "✅ All workflow files follow best practices!"
+if [ $new_violations -eq 0 ]; then
+    echo "✅ No new violations found! All workflow files follow best practices."
+    if [ $violations -gt 0 ]; then
+        echo "📋 Found $violations grandfathered violation(s) from baseline"
+    fi
     echo "📋 Summary:"
     echo "   - Only workflows in $allowed_workflows_dir use local actions (./action-name)"
     echo "   - Only workflows in $allowed_workflows_dir use actions/checkout"
 else
-    echo "❌ Found $violations violation(s) of workflow best practices!"
+    echo "❌ Found $new_violations NEW violation(s) of workflow best practices!"
+    if [ $violations -gt $new_violations ]; then
+        echo "📋 Found $((violations - new_violations)) grandfathered violation(s) from baseline"
+    fi
     echo ""
     echo "📋 Rules:"
     echo "   - Only workflows in $allowed_workflows_dir should use local actions (./action-name)"

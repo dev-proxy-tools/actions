@@ -1,0 +1,10 @@
+# Baseline for workflow best practices validation
+# This file contains existing violations that are grandfathered in
+# New violations beyond these will cause the validation to fail
+
+# Format: <file_path>:<violation_type>
+# violation_type can be: checkout, local_action
+
+./tests/llm-usage/.github/workflows/test.yml:checkout
+./tests/node-js/.github/workflows/test.yml:checkout
+./tests/playwright-web-app/.github/workflows/test.yml:checkout
