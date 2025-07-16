@@ -57,4 +57,4 @@ runs:
 
     - name: Start recording (conditional)
       if: ${{ inputs.auto-record == 'true' }}
-      uses: ./record-start
+      uses: dev-proxy-tools/actions/record-start@v1

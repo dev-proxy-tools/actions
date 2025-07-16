@@ -38,7 +38,7 @@ runs:
   steps:
     - name: Install Dev Proxy
       id: install
-      uses: ./install
+      uses: dev-proxy-tools/actions/setup@v1
       with:
         version: ${{ inputs.version }}
 
@@ -71,4 +71,4 @@ runs:
 
     - name: Start recording (conditional)
       if: ${{ inputs.auto-start == 'true' && inputs.auto-record == 'true' }}
-      uses: ./record-start
+      uses: dev-proxy-tools/actions/record-start@v1
