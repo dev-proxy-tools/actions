@@ -4,10 +4,15 @@ inputs:
   version:
     description: Version of Dev Proxy to install (e.g., v0.29.2). If not specified, the latest version will be installed.
     required: false
+  called-by-setup:
+    description: Indicates if this action is called by the setup action
+    required: false
+    default: "false"
 runs:
   using: "composite"
   steps:
     - name: Deprecated
+      if: ${{ inputs.called-by-setup == 'false' }}
       run: |
         echo "⚠️ This action is deprecated. Use 'dev-proxy-tools/actions/setup@v1' instead."
       shell: bash

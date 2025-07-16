@@ -38,8 +38,9 @@ runs:
   steps:
     - name: Install Dev Proxy
       id: install
-      uses: dev-proxy-tools/actions/setup@v1
+      uses: dev-proxy-tools/actions/install@v1
       with:
+        called-by-setup: true
         version: ${{ inputs.version }}
 
     - name: Start Dev Proxy (conditional)
