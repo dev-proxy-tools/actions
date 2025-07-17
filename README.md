@@ -218,6 +218,7 @@ jobs:
 
       # Install v0.29.2 and start Dev Proxy in recording mode
       # Reports are written to Job Summary
+      # Caching is enabled by default to speed up subsequent runs
       - name: Setup Dev Proxy
         id: setup-devproxy
         uses: dev-proxy-tools/actions/setup@v1
@@ -237,6 +238,48 @@ jobs:
         run: |
           echo "Dev Proxy logs:"
           cat devproxy.log
+```
+
+### Example with Cache Management
+
+Here's an example showing different cache scenarios:
+
+```yaml
+name: Cache Management Examples
+
+on:
+  workflow_dispatch:
+
+jobs:
+  # Use cache for faster setup (default behavior)
+  with-cache:
+    name: With Cache (Default)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Dev Proxy with cache
+        uses: dev-proxy-tools/actions/setup@v1
+        with:
+          version: v0.29.2
+
+  # Disable cache for always fresh installation
+  without-cache:
+    name: Without Cache
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Dev Proxy without cache
+        uses: dev-proxy-tools/actions/setup@v1
+        with:
+          version: v0.29.2
+          enable-cache: false
+
+  # Cache latest version (changes when new version is released)
+  latest-cached:
+    name: Latest Version with Cache
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup latest Dev Proxy
+        uses: dev-proxy-tools/actions/setup@v1
+        # No version specified = latest, will be cached
 ```
 
 ## Samples
