@@ -34,6 +34,20 @@ The `setup` action automatically:
  - Set `http_proxy` and `https_proxy` environment variables to route traffic through Dev Proxy.
  - Registers a post-step that will stop Dev Proxy and clean up when the workflow completes.
 
+**Caching:**
+
+By default, the `setup` action caches the Dev Proxy installation to improve performance on subsequent workflow runs. The cache is keyed by the Dev Proxy version and runner OS. If you specify a version, that exact version will be cached. If you don't specify a version (using latest), the latest version available at the time of installation will be cached.
+
+The action automatically validates cached installations to ensure they're still functional. If validation fails, it will reinstall Dev Proxy. You can disable caching by setting `enable-cache: false`.
+
+Example with caching disabled:
+```yaml
+- name: Setup Dev Proxy
+  uses: dev-proxy-tools/actions/setup@v1
+  with:
+    enable-cache: false
+```
+
 **Inputs:**
 
 You can customize the behavior of the `setup` action using the following inputs:
@@ -44,6 +58,7 @@ You can customize the behavior of the `setup` action using the following inputs:
 | `auto-stop` | Automatically stop Dev Proxy after the workflow completes | No | `true` |
 | `auto-record` | Automatically start Dev Proxy in recording mode | No | `false` |
 | `config-file` | Path to the Dev Proxy configuration file | No | Uses default configuration |
+| `enable-cache` | Enable caching of Dev Proxy installation to speed up subsequent runs | No | `true` |
 | `log-file` | Path to log Dev Proxy output to | No | `devproxy.log` |
 | `report-job-summary` | Path to output report content for use as summaries (e.g., `$GITHUB_STEP_SUMMARY`). | No | None |
 | `version` | Version of Dev Proxy to install (e.g., v0.29.2, v1.0.0-beta.2) | No | latest |

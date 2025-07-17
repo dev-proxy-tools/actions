@@ -1,31 +1,47 @@
 name: Setup Dev Proxy
-description: Setup Dev Proxy with optional version specification and start configuration
+description: >
+  Setup Dev Proxy with optional version specification and start configuration
 inputs:
   version:
-    description: Version of Dev Proxy to install (e.g., v0.29.2). If not specified, the latest version will be installed.
+    description: >
+      Version of Dev Proxy to install (e.g., v0.29.2). If not specified,
+      the latest version will be installed.
     required: false
   auto-start:
     description: Start Dev Proxy after installation
     required: false
     default: "true"
   auto-record:
-    description: Automatically start recording after setup (only used when start is true)
+    description: >
+      Automatically start recording after setup (only used when start is true)
     required: false
     default: "false"
   log-file:
-    description: The file to log Dev Proxy output to (only used when start is true)
+    description: >
+      The file to log Dev Proxy output to (only used when start is true)
     required: false
     default: devproxy.log
   config-file:
-    description: The path to the Dev Proxy configuration file (only used when start is true)
+    description: >
+      The path to the Dev Proxy configuration file
+      (only used when start is true)
     required: false
   auto-stop:
-    description: Automatically stop Dev Proxy when workflow completes (only used when start is true)
+    description: >
+      Automatically stop Dev Proxy when workflow completes
+      (only used when start is true)
     required: false
     default: "true"
   report-job-summary:
-    description: Path to write job summary with Dev Proxy reports (e.g., $GITHUB_STEP_SUMMARY). If not provided, no summary is created.
+    description: >
+      Path to write job summary with Dev Proxy reports
+      (e.g., $GITHUB_STEP_SUMMARY). If not provided, no summary is created.
     required: false
+  enable-cache:
+    description: >
+      Enable caching of Dev Proxy installation to speed up subsequent runs
+    required: false
+    default: "true"
 outputs:
   proxy-url:
     description: The URL of the running Dev Proxy instance (only set when start is true)
@@ -36,12 +52,117 @@ outputs:
 runs:
   using: composite
   steps:
+    - name: Determine cache key
+      id: cache-key
+      run: |
+        # Create cache key based on version and runner OS
+        if [ -n "${{ inputs.version }}" ]; then
+          cache_version="${{ inputs.version }}"
+        else
+          cache_version="latest"
+        fi
+
+        # Include OS in cache key for platform-specific binaries
+        cache_key="devproxy-$cache_version-${{ runner.os }}"
+        echo "cache-key=$cache_key" >> $GITHUB_OUTPUT
+        echo "version=$cache_version" >> $GITHUB_OUTPUT
+        echo "📋 Cache key: $cache_key"
+      shell: bash
+
+    - name: Cache Dev Proxy installation
+      if: ${{ inputs.enable-cache == 'true' }}
+      id: cache-devproxy
+      uses: actions/cache@v4
+      with:
+        path: |
+          ./devproxy/
+          ./devproxy-beta/
+        key: ${{ steps.cache-key.outputs.cache-key }}
+        restore-keys: |
+          devproxy-${{ steps.cache-key.outputs.version }}-
+
+    - name: Validate cached installation
+      if: >
+        ${{ inputs.enable-cache == 'true' &&
+        steps.cache-devproxy.outputs.cache-hit == 'true' }}
+      id: validate-cache
+      run: |
+        echo "🔍 Validating cached Dev Proxy installation..."
+
+        # Check if version contains beta
+        is_beta=false
+        if [ -n "${{ inputs.version }}" ] && echo "${{ inputs.version }}" | grep -q "\-beta"; then
+          is_beta=true
+          echo "DEVPROXY_BETA=true" >> $GITHUB_ENV
+        fi
+
+        # Determine expected binary path
+        if [ "$is_beta" = true ]; then
+          binary_path="./devproxy-beta/devproxy-beta"
+        else
+          binary_path="./devproxy/devproxy"
+        fi
+
+        # Check if binary exists and is executable
+        if [ -f "$binary_path" ] && [ -x "$binary_path" ]; then
+          echo "✅ Binary found at $binary_path"
+
+          # Try to run version check
+          if version_output=$($binary_path --version 2>&1); then
+            echo "✅ Binary is functional"
+            echo "📋 Version: $version_output"
+
+            # If specific version was requested, verify it matches
+            if [ -n "${{ inputs.version }}" ] && [ "${{ inputs.version }}" != "latest" ]; then
+              version_number=$(echo "${{ inputs.version }}" | sed 's/^v//')
+              if echo "$version_output" | grep -q "$version_number"; then
+                echo "✅ Version matches expectation"
+                echo "cache-valid=true" >> $GITHUB_OUTPUT
+              else
+                echo "❌ Version mismatch, cache invalid"
+                echo "cache-valid=false" >> $GITHUB_OUTPUT
+              fi
+            else
+              echo "✅ Latest version validation passed"
+              echo "cache-valid=true" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "❌ Binary failed version check, cache invalid"
+            echo "cache-valid=false" >> $GITHUB_OUTPUT
+          fi
+        else
+          echo "❌ Binary not found or not executable, cache invalid"
+          echo "cache-valid=false" >> $GITHUB_OUTPUT
+        fi
+      shell: bash
+
     - name: Install Dev Proxy
       id: install
+      if: >
+        ${{ inputs.enable-cache == 'false' ||
+        steps.cache-devproxy.outputs.cache-hit != 'true' ||
+        steps.validate-cache.outputs.cache-valid == 'false' }}
       uses: dev-proxy-tools/actions/install@v1
       with:
         called-by-setup: true
         version: ${{ inputs.version }}
+
+    - name: Cache status summary
+      run: |
+        if [ "${{ inputs.enable-cache }}" == "true" ]; then
+          if [ "${{ steps.cache-devproxy.outputs.cache-hit }}" == "true" ]; then
+            if [ "${{ steps.validate-cache.outputs.cache-valid }}" == "true" ]; then
+              echo "🎯 Using cached Dev Proxy installation"
+            else
+              echo "🔄 Cache found but invalid, reinstalled Dev Proxy"
+            fi
+          else
+            echo "📦 No cache found, installed Dev Proxy"
+          fi
+        else
+          echo "🚫 Cache disabled, installed Dev Proxy"
+        fi
+      shell: bash
 
     - name: Start Dev Proxy (conditional)
       id: start-conditional
@@ -51,13 +172,14 @@ runs:
         main: |
           # Make script executable
           chmod +x ${{ github.action_path }}/../scripts/start-devproxy.sh
-          
+
           # Call the start script
-          ${{ github.action_path }}/../scripts/start-devproxy.sh "${{ inputs.log-file }}" "${{ inputs.config-file }}"
+          start_script="${{ github.action_path }}/../scripts/start-devproxy.sh"
+          $start_script "${{ inputs.log-file }}" "${{ inputs.config-file }}"
         post: |
           # Make script executable
           chmod +x ${{ github.action_path }}/../scripts/stop-devproxy.sh
-          
+
           # Call the stop script
           ${{ github.action_path }}/../scripts/stop-devproxy.sh "${{ inputs.auto-stop }}"
 
@@ -65,9 +187,10 @@ runs:
           if [ -n "${{ inputs.report-job-summary }}" ]; then
             # Make script executable
             chmod +x ${{ github.action_path }}/../scripts/generate-job-summary.sh
-            
+
             # Call the job summary script
-            ${{ github.action_path }}/../scripts/generate-job-summary.sh "${{ inputs.report-job-summary }}"
+            script_path="${{ github.action_path }}/../scripts/generate-job-summary.sh"
+            $script_path "${{ inputs.report-job-summary }}"
           fi
 
     - name: Start recording (conditional)
