@@ -40,7 +40,7 @@ jobs:
           auto-stop: false
           config-file: ./tests/llm-usage/.devproxy/devproxyrc.json
           report-job-summary: $GITHUB_STEP_SUMMARY
-          version: v1.0.0-beta.4
+          version: v1.0.0-beta.8
 
       - name: Install the Dev Proxy certificate for Chromium
         uses: ./chromium-cert

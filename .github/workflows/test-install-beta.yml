@@ -15,7 +15,7 @@ jobs:
         id: setup-beta
         uses: ./setup
         with:
-          version: v1.0.0-beta.2
+          version: v1.0.0-beta.8
           auto-start: false  # Only install, don't start
 
       - name: Verify Beta Installation
