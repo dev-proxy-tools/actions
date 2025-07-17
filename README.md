@@ -33,20 +33,7 @@ The `setup` action automatically:
  - Install and trust Dev Proxy certificate on the runner.
  - Set `http_proxy` and `https_proxy` environment variables to route traffic through Dev Proxy.
  - Registers a post-step that will stop Dev Proxy and clean up when the workflow completes.
-
-**Caching:**
-
-By default, the `setup` action caches the Dev Proxy installation to improve performance on subsequent workflow runs. The cache is keyed by the Dev Proxy version and runner OS. If you specify a version, that exact version will be cached. If you don't specify a version (using latest), the latest version available at the time of installation will be cached.
-
-The action automatically validates cached installations to ensure they're still functional. If validation fails, it will reinstall Dev Proxy. You can disable caching by setting `enable-cache: false`.
-
-Example with caching disabled:
-```yaml
-- name: Setup Dev Proxy
-  uses: dev-proxy-tools/actions/setup@v1
-  with:
-    enable-cache: false
-```
+ - Caches the Dev Proxy installation to improve performance on subsequent workflow runs.
 
 **Inputs:**
 
@@ -240,47 +227,7 @@ jobs:
           cat devproxy.log
 ```
 
-### Example with Cache Management
 
-Here's an example showing different cache scenarios:
-
-```yaml
-name: Cache Management Examples
-
-on:
-  workflow_dispatch:
-
-jobs:
-  # Use cache for faster setup (default behavior)
-  with-cache:
-    name: With Cache (Default)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Setup Dev Proxy with cache
-        uses: dev-proxy-tools/actions/setup@v1
-        with:
-          version: v0.29.2
-
-  # Disable cache for always fresh installation
-  without-cache:
-    name: Without Cache
-    runs-on: ubuntu-latest
-    steps:
-      - name: Setup Dev Proxy without cache
-        uses: dev-proxy-tools/actions/setup@v1
-        with:
-          version: v0.29.2
-          enable-cache: false
-
-  # Cache latest version (changes when new version is released)
-  latest-cached:
-    name: Latest Version with Cache
-    runs-on: ubuntu-latest
-    steps:
-      - name: Setup latest Dev Proxy
-        uses: dev-proxy-tools/actions/setup@v1
-        # No version specified = latest, will be cached
-```
 
 ## Samples
 
