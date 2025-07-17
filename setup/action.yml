@@ -27,7 +27,7 @@ inputs:
     description: Path to write job summary with Dev Proxy reports (e.g., $GITHUB_STEP_SUMMARY). If not provided, no summary is created.
     required: false
   enable-cache:
-    description: Enable caching of Dev Proxy installation to speed up subsequent runs
+    description: Enable caching of Dev Proxy installation to speed up subsequent runs.
     required: false
     default: "true"
 outputs:
@@ -40,23 +40,6 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Determine cache key
-      id: cache-key
-      run: |
-        # If version is specified, use it directly
-        if [ -n "${{ inputs.version }}" ]; then
-          cache_version="${{ inputs.version }}"
-          echo "cache-key=devproxy-$cache_version-${{ runner.os }}" >> $GITHUB_OUTPUT
-          echo "version=$cache_version" >> $GITHUB_OUTPUT
-          echo "📋 Cache key: devproxy-$cache_version-${{ runner.os }}"
-        else
-          # For latest version, we need to install first to get the actual version
-          echo "cache-key=devproxy-temp-${{ runner.os }}" >> $GITHUB_OUTPUT
-          echo "version=latest" >> $GITHUB_OUTPUT
-          echo "📋 Temporary cache key: devproxy-temp-${{ runner.os }}"
-        fi
-      shell: bash
-
     - name: Cache Dev Proxy installation
       if: ${{ inputs.enable-cache == 'true' && inputs.version != '' }}
       id: cache-devproxy
@@ -65,61 +48,17 @@ runs:
         path: |
           ./devproxy/
           ./devproxy-beta/
-        key: ${{ steps.cache-key.outputs.cache-key }}
+        key: devproxy-${{ inputs.version }}-${{ runner.os }}
         restore-keys: |
-          devproxy-${{ steps.cache-key.outputs.version }}-
-
-    - name: Install Dev Proxy for version detection
-      id: install-for-version
-      if: ${{ inputs.version == '' }}
-      uses: dev-proxy-tools/actions/install@v1
-      with:
-        called-by-setup: true
-        version: ${{ inputs.version }}
-
-    - name: Get actual version and create proper cache key
-      id: actual-cache-key
-      if: ${{ inputs.version == '' }}
-      run: |
-        # Determine binary path based on installed version
-        if [ -f "./devproxy-beta/devproxy-beta" ]; then
-          binary_path="./devproxy-beta/devproxy-beta"
-        else
-          binary_path="./devproxy/devproxy"
-        fi
-        
-        # Get actual version from binary
-        actual_version=$($binary_path --version | head -1 | awk '{print $2}')
-        echo "📋 Detected version: $actual_version"
-        
-        # Create proper cache key with actual version
-        cache_key="devproxy-v$actual_version-${{ runner.os }}"
-        echo "cache-key=$cache_key" >> $GITHUB_OUTPUT
-        echo "version=v$actual_version" >> $GITHUB_OUTPUT
-        echo "📋 Final cache key: $cache_key"
-      shell: bash
-
-    - name: Cache Dev Proxy installation with actual version
-      if: ${{ inputs.enable-cache == 'true' && inputs.version == '' }}
-      id: cache-devproxy-actual
-      uses: actions/cache@v4
-      with:
-        path: |
-          ./devproxy/
-          ./devproxy-beta/
-        key: ${{ steps.actual-cache-key.outputs.cache-key }}
-        restore-keys: |
-          devproxy-${{ steps.actual-cache-key.outputs.version }}-
+          devproxy-${{ inputs.version }}-
 
     - name: Install Dev Proxy
       id: install
-      if: ${{ inputs.enable-cache == 'false' || (inputs.version != '' && steps.cache-devproxy.outputs.cache-hit != 'true') }}
+      if: ${{ inputs.enable-cache == 'false' || inputs.version == '' || (inputs.version != '' && steps.cache-devproxy.outputs.cache-hit != 'true') }}
       uses: dev-proxy-tools/actions/install@v1
       with:
         called-by-setup: true
         version: ${{ inputs.version }}
-
-
 
     - name: Start Dev Proxy (conditional)
       id: start-conditional
