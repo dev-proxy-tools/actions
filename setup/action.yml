@@ -58,6 +58,32 @@ runs:
         called-by-setup: true
         version: ${{ inputs.version }}
 
+    - name: Setup cached Dev Proxy
+      if: ${{ inputs.enable-cache == 'true' && inputs.version != '' && steps.cache-devproxy.outputs.cache-hit == 'true' }}
+      run: |
+        echo "🔧 Setting up cached Dev Proxy..."
+        
+        # Check if this is a beta version and set environment variable
+        if echo "${{ inputs.version }}" | grep -q "\-beta"; then
+          echo "DEVPROXY_BETA=true" >> $GITHUB_ENV
+          echo "📋 Beta version detected, setting DEVPROXY_BETA=true"
+          
+          # Make beta executable
+          if [ -f "./devproxy-beta/devproxy-beta" ]; then
+            chmod +x "./devproxy-beta/devproxy-beta"
+            echo "✅ Made devproxy-beta executable"
+          fi
+        else
+          # Make regular executable
+          if [ -f "./devproxy/devproxy" ]; then
+            chmod +x "./devproxy/devproxy"
+            echo "✅ Made devproxy executable"
+          fi
+        fi
+        
+        echo "✅ Cached Dev Proxy setup complete!"
+      shell: bash
+
     - name: Start Dev Proxy (conditional)
       id: start-conditional
       if: ${{ inputs.auto-start == 'true' }}
