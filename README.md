@@ -24,16 +24,17 @@ Use the `setup` action to install and start Dev Proxy.
 - name: Setup Dev Proxy
   id: setup-devproxy
   uses: dev-proxy-tools/actions/setup@v1
+  with:
+    version: v0.29.2
 ```
 
 The `setup` action automatically:
  
- - Installs the latest version of Dev Proxy.
+ - Installs and caches the latest version of Dev Proxy to speed up subsequent runs.
  - Start Dev Proxy using the default configuration file, `devroxyrc.json`.
  - Install and trust Dev Proxy certificate on the runner.
  - Set `http_proxy` and `https_proxy` environment variables to route traffic through Dev Proxy.
  - Registers a post-step that will stop Dev Proxy and clean up when the workflow completes.
- - Caches the Dev Proxy installation to improve performance on subsequent workflow runs.
 
 **Inputs:**
 
@@ -45,7 +46,7 @@ You can customize the behavior of the `setup` action using the following inputs:
 | `auto-stop` | Automatically stop Dev Proxy after the workflow completes | No | `true` |
 | `auto-record` | Automatically start Dev Proxy in recording mode | No | `false` |
 | `config-file` | Path to the Dev Proxy configuration file | No | Uses default configuration |
-| `enable-cache` | Enable caching of Dev Proxy installation to speed up subsequent runs | No | `true` |
+| `enable-cache` | Enable caching of Dev Proxy installation to speed up subsequent runs. Only applies when `version` is specified. | No | `true` |
 | `log-file` | Path to log Dev Proxy output to | No | `devproxy.log` |
 | `report-job-summary` | Path to output report content for use as summaries (e.g., `$GITHUB_STEP_SUMMARY`). | No | None |
 | `version` | Version of Dev Proxy to install (e.g., v0.29.2, v1.0.0-beta.2) | No | latest |
