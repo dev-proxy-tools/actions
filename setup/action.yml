@@ -26,6 +26,10 @@ inputs:
   report-job-summary:
     description: Path to write job summary with Dev Proxy reports (e.g., $GITHUB_STEP_SUMMARY). If not provided, no summary is created.
     required: false
+  enable-cache:
+    description: Enable caching of Dev Proxy installation to speed up subsequent runs.
+    required: false
+    default: "true"
 outputs:
   proxy-url:
     description: The URL of the running Dev Proxy instance (only set when start is true)
@@ -36,12 +40,49 @@ outputs:
 runs:
   using: composite
   steps:
+    - name: Cache Dev Proxy installation
+      if: ${{ inputs.enable-cache == 'true' && inputs.version != '' }}
+      id: cache-devproxy
+      uses: actions/cache@v4
+      with:
+        path: |
+          ./devproxy/
+          ./devproxy-beta/
+        key: devproxy-${{ inputs.version }}-${{ runner.os }}
+
     - name: Install Dev Proxy
       id: install
+      if: ${{ inputs.enable-cache == 'false' || inputs.version == '' || (inputs.version != '' && steps.cache-devproxy.outputs.cache-hit != 'true') }}
       uses: dev-proxy-tools/actions/install@v1
       with:
         called-by-setup: true
         version: ${{ inputs.version }}
+
+    - name: Setup cached Dev Proxy
+      if: ${{ inputs.enable-cache == 'true' && inputs.version != '' && steps.cache-devproxy.outputs.cache-hit == 'true' }}
+      run: |
+        echo "🔧 Setting up cached Dev Proxy..."
+        
+        # Check if this is a beta version and set environment variable
+        if echo "${{ inputs.version }}" | grep -q "\-beta"; then
+          echo "DEVPROXY_BETA=true" >> $GITHUB_ENV
+          echo "📋 Beta version detected, setting DEVPROXY_BETA=true"
+          
+          # Make beta executable
+          if [ -f "./devproxy-beta/devproxy-beta" ]; then
+            chmod +x "./devproxy-beta/devproxy-beta"
+            echo "✅ Made devproxy-beta executable"
+          fi
+        else
+          # Make regular executable
+          if [ -f "./devproxy/devproxy" ]; then
+            chmod +x "./devproxy/devproxy"
+            echo "✅ Made devproxy executable"
+          fi
+        fi
+        
+        echo "✅ Cached Dev Proxy setup complete!"
+      shell: bash
 
     - name: Start Dev Proxy (conditional)
       id: start-conditional
@@ -51,13 +92,14 @@ runs:
         main: |
           # Make script executable
           chmod +x ${{ github.action_path }}/../scripts/start-devproxy.sh
-          
+
           # Call the start script
-          ${{ github.action_path }}/../scripts/start-devproxy.sh "${{ inputs.log-file }}" "${{ inputs.config-file }}"
+          start_script="${{ github.action_path }}/../scripts/start-devproxy.sh"
+          $start_script "${{ inputs.log-file }}" "${{ inputs.config-file }}"
         post: |
           # Make script executable
           chmod +x ${{ github.action_path }}/../scripts/stop-devproxy.sh
-          
+
           # Call the stop script
           ${{ github.action_path }}/../scripts/stop-devproxy.sh "${{ inputs.auto-stop }}"
 
@@ -65,9 +107,10 @@ runs:
           if [ -n "${{ inputs.report-job-summary }}" ]; then
             # Make script executable
             chmod +x ${{ github.action_path }}/../scripts/generate-job-summary.sh
-            
+
             # Call the job summary script
-            ${{ github.action_path }}/../scripts/generate-job-summary.sh "${{ inputs.report-job-summary }}"
+            script_path="${{ github.action_path }}/../scripts/generate-job-summary.sh"
+            $script_path "${{ inputs.report-job-summary }}"
           fi
 
     - name: Start recording (conditional)
