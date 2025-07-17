@@ -49,8 +49,6 @@ runs:
           ./devproxy/
           ./devproxy-beta/
         key: devproxy-${{ inputs.version }}-${{ runner.os }}
-        restore-keys: |
-          devproxy-${{ inputs.version }}-
 
     - name: Install Dev Proxy
       id: install
