@@ -1,0 +1,19 @@
+{
+	"name": "Node.js Development Container",
+	"image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+	"features": {
+		"ghcr.io/devcontainers/features/common-utils:2": {
+			"installZsh": true,
+			"configureZshAsDefaultShell": true,
+			"installOhMyZsh": true
+		}
+	},
+	"postCreateCommand": "bash -c \"$(curl -sL https://aka.ms/devproxy/setup-beta.sh)\" && zsh -c 'source ~/.zshrc'",
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"terminal.integrated.defaultProfile.linux": "zsh"
+			}
+		}
+	}
+}
