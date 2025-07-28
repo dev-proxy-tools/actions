@@ -1,0 +1,21 @@
+name: Validate Workflow Best Practices
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  validate-workflow-practices:
+    name: Validate Workflow Best Practices
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Validate workflow best practices
+        run: |
+          chmod +x ./scripts/validate-workflow-practices.sh
+          ./scripts/validate-workflow-practices.sh
