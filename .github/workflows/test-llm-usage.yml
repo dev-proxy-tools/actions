@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Update env.js
-        working-directory: ./tests/llm-usage
+        working-directory: ./samples/llm-usage
         run: |
           echo "Updating env.js..."
           echo "export const apiKey = '${{ secrets.GITHUB_TOKEN }}';" > ./js/env.js
@@ -26,11 +26,11 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        working-directory: ./tests/llm-usage
+        working-directory: ./samples/llm-usage
         run: npm ci
 
       - name: Install Edge browser
-        working-directory: ./tests/llm-usage
+        working-directory: ./samples/llm-usage
         run: npm run install:msedge
 
       - name: Setup Dev Proxy
@@ -38,7 +38,7 @@ jobs:
         with:
           auto-record: true
           auto-stop: false
-          config-file: ./tests/llm-usage/.devproxy/devproxyrc.json
+          config-file: ./samples/llm-usage/.devproxy/devproxyrc.json
           report-job-summary: $GITHUB_STEP_SUMMARY
           version: v1.0.0-beta.8
 
@@ -46,7 +46,7 @@ jobs:
         uses: ./chromium-cert
 
       - name: Run Playwright tests
-        working-directory: ./tests/llm-usage
+        working-directory: ./samples/llm-usage
         run: DEBUG=pw:api npx playwright test
 
       - name: Stop recording

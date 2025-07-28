@@ -16,11 +16,11 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: tests/node-js/package-lock.json
+          cache-dependency-path: samples/node-js/package-lock.json
 
       - name: Install Node.js dependencies
         run: |
-          cd tests/node-js
+          cd samples/node-js
           npm install
 
       - name: Setup Dev Proxy
@@ -31,7 +31,7 @@ jobs:
 
       - name: Run Node.js test application
         run: |
-          cd tests/node-js
+          cd samples/node-js
           node index.mjs
 
       - name: Show logs

@@ -18,24 +18,24 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        working-directory: ./tests/playwright-web-app
+        working-directory: ./samples/playwright-web-app
         run: npm ci
 
       - name: Install Edge browser
-        working-directory: ./tests/playwright-web-app
+        working-directory: ./samples/playwright-web-app
         run: npm run install:msedge
 
       - name: Setup Dev Proxy
         uses: ./setup
         with:
           version: v0.29.2
-          config-file: ./tests/playwright-web-app/.devproxy/devproxyrc.json
+          config-file: ./samples/playwright-web-app/.devproxy/devproxyrc.json
       
       - name: Install the Dev Proxy certificate for Chromium
         uses: ./chromium-cert
       
       - name: Run Playwright tests
-        working-directory: ./tests/playwright-web-app
+        working-directory: ./samples/playwright-web-app
         run: npm test
 
       - name: Show logs
