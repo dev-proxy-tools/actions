@@ -1,0 +1,22 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Web App with Dev Proxy",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "start"
+            ],
+            "console": "integratedTerminal",
+            "serverReadyAction": {
+                "pattern": "Available on:",
+                "uriFormat": "http://127.0.0.1:8007",
+                "action": "openExternally"
+            },
+            "preLaunchTask": "devproxy-start",
+            "postDebugTask": "devproxy-stop"
+        }
+    ]
+}

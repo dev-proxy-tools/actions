@@ -1,0 +1,25 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "npm install",
+            "type": "shell",
+            "command": "npm",
+            "args": ["install"],
+            "group": "build",
+        },
+        {
+            "label": "devproxy-start",
+            "type": "devproxy",
+            "command": "start",
+            "isBackground": true,
+            "problemMatcher": "$devproxy-watch",
+            "dependsOn": "npm install"
+        },
+        {
+            "label": "devproxy-stop",
+            "type": "devproxy",
+            "command": "stop"
+        }
+    ]
+}
