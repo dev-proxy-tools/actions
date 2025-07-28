@@ -5,7 +5,9 @@
             "label": "npm install",
             "type": "shell",
             "command": "npm",
-            "args": ["install"],
+            "args": [
+                "install"
+            ],
             "group": "build",
         },
         {
@@ -14,6 +16,22 @@
             "command": "start",
             "isBackground": true,
             "problemMatcher": "$devproxy-watch",
+            "dependsOn": "npm install",
+            "args": [
+                "--record"
+            ],
+        },
+        {
+            "label": "devproxy-start-simulate-ai",
+            "type": "devproxy",
+            "command": "start",
+            "isBackground": true,
+            "problemMatcher": "$devproxy-watch",
+            "args": [
+                "-c",
+                ".devproxy/simulate-ai.json",
+                "--record"
+            ],
             "dependsOn": "npm install"
         },
         {
