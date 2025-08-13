@@ -25,7 +25,7 @@ Use the `setup` action to install and start Dev Proxy.
   id: setup-devproxy
   uses: dev-proxy-tools/actions/setup@v1
   with:
-    version: v0.29.2
+    version: v1.0.0
 ```
 
 The `setup` action automatically:
@@ -49,7 +49,7 @@ You can customize the behavior of the `setup` action using the following inputs:
 | `enable-cache` | Enable caching of Dev Proxy installation to speed up subsequent runs. Only applies when `version` is specified. | No | `true` |
 | `log-file` | Path to log Dev Proxy output to | No | `devproxy.log` |
 | `report-job-summary` | Path to output report content for use as summaries (e.g., `$GITHUB_STEP_SUMMARY`). | No | None |
-| `version` | Version of Dev Proxy to install (e.g., v0.29.2, v1.0.0-beta.2) | No | latest |
+| `version` | Version of Dev Proxy to install (e.g., v1.0.0, v1.0.0-beta.2) | No | latest |
 
 **Outputs:**
 
@@ -204,14 +204,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      # Install v0.29.2 and start Dev Proxy in recording mode
+      # Install v1.0.0 and start Dev Proxy in recording mode
       # Reports are written to Job Summary
       # Caching is enabled by default to speed up subsequent runs
       - name: Setup Dev Proxy
         id: setup-devproxy
         uses: dev-proxy-tools/actions/setup@v1
         with:
-          version: v0.29.2
+          version: v1.0.0
           auto-record: true
           report-job-summary: $GITHUB_STEP_SUMMARY
 

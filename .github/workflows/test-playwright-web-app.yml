@@ -28,7 +28,7 @@ jobs:
       - name: Setup Dev Proxy
         uses: ./setup
         with:
-          version: v0.29.2
+          version: v1.0.0
           config-file: ./samples/playwright-web-app/.devproxy/devproxyrc.json
       
       - name: Install the Dev Proxy certificate for Chromium

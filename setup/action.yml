@@ -2,7 +2,7 @@ name: Setup Dev Proxy
 description: Setup Dev Proxy with optional version specification and start configuration
 inputs:
   version:
-    description: Version of Dev Proxy to install (e.g., v0.29.2). If not specified, the latest version will be installed.
+    description: Version of Dev Proxy to install (e.g., v1.0.0). If not specified, the latest version will be installed.
     required: false
   auto-start:
     description: Start Dev Proxy after installation

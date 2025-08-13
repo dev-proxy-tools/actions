@@ -35,7 +35,7 @@ jobs:
         uses: dev-proxy-tools/actions/setup@v1
         with:
           auto-record: true
-          version: v1.0.0-beta.8
+          version: v1.0.0
           report-job-summary: $GITHUB_STEP_SUMMARY
 
       - name: Install the Dev Proxy certificate for Chromium

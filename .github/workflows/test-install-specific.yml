@@ -15,7 +15,7 @@ jobs:
         id: setup-version
         uses: ./setup
         with:
-          version: v0.29.2
+          version: v1.0.0
           auto-start: false
 
       - name: Verify Installation
@@ -29,9 +29,9 @@ jobs:
             echo "Version output: $version_output"
             
             if echo "$version_output" | grep -q "0.29.2"; then
-              echo "✅ Correct version (v0.29.2) installed"
+              echo "✅ Correct version (v1.0.0) installed"
             else
-              echo "❌ Expected version v0.29.2 but got: $version_output"
+              echo "❌ Expected version v1.0.0 but got: $version_output"
               exit 1
             fi
           else
