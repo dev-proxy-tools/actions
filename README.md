@@ -228,17 +228,15 @@ jobs:
           cat devproxy.log
 ```
 
-
-
 ## Samples
 
-You can find more examples and samples in the [tests](./tests/) directory.
+You can find more examples and samples in the [samples](./samples/) directory.
 
 | Test Project | Description |
 |--------------|-------------|
-| [llm-usage](./tests/llm-usage/) | Tests AI/LLM usage tracking and reporting with OpenAI telemetry plugin, includes Playwright tests for feedback analysis |
-| [node-js](./tests/node-js/) | Simple Node.js integration test that validates basic Dev Proxy functionality with HTTP requests |
-| [playwright-web-app](./tests/playwright-web-app/) | Playwright end-to-end testing example with mock data configuration and blog post testing scenarios |
+| [llm-usage](./samples/llm-usage/) | Tests AI/LLM usage tracking and reporting with OpenAI telemetry plugin, includes Playwright tests for feedback analysis |
+| [node-js](./samples/node-js/) | Simple Node.js integration test that validates basic Dev Proxy functionality with HTTP requests |
+| [playwright-web-app](./samples/playwright-web-app/) | Playwright end-to-end testing example with mock data configuration and blog post testing scenarios |
 
 ## License
 
